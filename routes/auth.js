@@ -1,7 +1,7 @@
 let express = require('express')
 let router = express.Router()
 let userController = require('../controllers/users')
-let { RegisterValidator, validatedResult } = require('../utils/validator')
+let { RegisterValidator, ChangePasswordValidator, validatedResult } = require('../utils/validator')
 let bcrypt = require('bcrypt')
 let jwt = require('jsonwebtoken')
 const { check } = require('express-validator')
@@ -53,6 +53,27 @@ router.post('/login', async function (req, res, next) {
 })
 router.get('/me',checkLogin, function (req,res,next) {
     res.send(req.user)
+})
+
+router.post('/changepassword', checkLogin, ChangePasswordValidator, validatedResult, async function (req, res, next) {
+    let { oldpassword, newpassword } = req.body;
+    let user = req.user;
+
+    // Check if the old password is correct
+    if (!bcrypt.compareSync(oldpassword, user.password)) {
+        res.status(400).send({
+            message: "Mat khau cu khong dung"
+        });
+        return;
+    }
+
+    // Update the password
+    user.password = newpassword;
+    await user.save();
+
+    res.send({
+        message: "Doi mat khau thanh cong"
+    });
 })
 
 module.exports = router;

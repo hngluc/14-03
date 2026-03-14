@@ -9,7 +9,7 @@ const { checkLogin } = require("../utils/authHandler");
 
 
 
-router.get("/",checkLogin , async function (req, res, next) {
+router.get("/", checkLogin, async function (req, res, next) {
   let users = await userModel
     .find({ isDeleted: false })
   res.send(users);
